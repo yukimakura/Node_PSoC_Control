@@ -1,0 +1,250 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=10.0, user-scalable=yes">
+
+<head>
+<!-- めんどくさいからCSS埋め込み-->
+<style type="text/css">
+#webcam{
+position: absolute;
+top: 0px;
+}
+#button1{
+	position: relative;
+}
+.red {
+position: relative;
+
+}
+.blue {
+  position: relative;
+
+}
+.green {
+  position: relative;
+ 
+}
+.parple {
+  position: relative;
+
+}
+.R{
+	position: relative;
+}
+.L{
+	position: relative;
+}
+</style>
+<script type="text/javascript" src="/jquery.js"></script>
+
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+
+</head>
+
+<body>
+
+<center>
+<div id="button1">
+<img class="red" src="red_on.jpg" id="1" width=20% height=20% ><br>
+<img class="green" src="green_on.jpg" id="2" width=20% height=20%><br>
+<img class="parple" src="parple_on.jpg" id="3" width=20% height=20%><br>
+<img class="blue" src="blue_on.jpg" id="4" width=20% height=20%><br>
+<img class="R" src="R_rotate.jpg" id="5" width=20% height=20%><br>
+<img class="L" src="L_rotate.jpg" id="6" width=20% height=20%><br>
+</div>
+<body onload="createImageLayer();">
+
+	<div id="webcam"><noscript><center>< img src="http://192.168.0.100:8090?action=snapshot"/></noscript></div></center>
+</body>
+</center>
+</body>
+<script>
+
+var scale;
+var socket = io.connect();
+
+$(function(){
+	$('body').on('touchstart', function(e){
+	e.preventDefault();
+	});
+});
+
+//定期的に画像読み込み
+var imageNr = 0;
+var finished = new Array();
+
+function createImageLayer() {
+  var img = new Image(280,180);
+  img.style.position = "absolute";
+  img.style.zIndex = -1;
+  img.onload = imageOnload;
+  img.src = "http://192.168.0.100:8090?action=snapshot&n=" + (++imageNr);
+  var webcam = document.getElementById("webcam");
+  webcam.insertBefore(img, webcam.firstChild);
+}
+
+function imageOnload() {
+  this.style.zIndex = imageNr;
+  while (1 < finished.length) {
+    var del = finished.shift();
+    del.parentNode.removeChild(del);
+  }
+  finished.push(this);
+  createImageLayer();
+}
+
+$(document).ready(function () {
+  wsize = $(window).width();
+  hsize = wsize * 0.25;
+  $("img").css("height", hsize + "px");
+  $("img").css("width", hsize + "px");
+  $(".blue").css("top", "-" + hsize + "px");
+  $(".green").css("left", "-" + hsize + "px");
+  $(".parple").css("top", "-" + hsize + "px");
+  $(".parple").css("left", hsize + "px");
+    $(".R").css("top","-" + hsize*1.5 + "px");
+  $(".L").css("top","-"+ hsize*2.5 + "px");
+  $(".L").css("left","-" + hsize-40 + "px");
+  $(".R").css("left", hsize+40 + "px");
+  $("#button1").css("top", wsize*0.5 + "px");
+  //$("#webcam").css("top", "-" + wsize + "px");
+
+});
+$(window).resize(function () {
+  hsize = $(window).width();
+  hsize = hsize * 0.25;
+  $("img").css("height", hsize + "px");
+  $("img").css("width", hsize + "px");
+  $(".blue").css("top", "-" + hsize + "px");
+  $(".green").css("left", "-" + hsize + "px");
+  $(".parple").css("top", "-" + hsize + "px");
+  $(".parple").css("left", hsize + "px");
+   $(".R").css("top","-" + hsize*1.5 + "px");
+  $(".L").css("top","-"+ hsize*2.5+ "px");
+  $(".L").css("left","-" + hsize-40 + "px");
+  $(".R").css("left", hsize+40 + "px");
+  $("#button1").css("top", wsize*0.5 + "px"); 
+//  $("#camera").css("top", "-" + wsize + "px");
+
+});
+	$("#1").on({
+		'touchstart mousedown': function(e){
+		$(this).attr("src", "red_off.jpg");
+		e.preventDefault();
+		this.touched = true;
+		socket.emit('sendmes','0');
+	},
+
+
+	'touchend mouseup': function(e){
+		$(this).attr("src", "red_on.jpg");
+		e.preventDefault();
+		if(!this.touched){
+			return;
+		}
+		this.touched = false;
+		socket.emit('sendmes','1');
+	}
+});
+
+	$("#2").on({
+		'touchstart mousedown': function(e){
+		$(this).attr("src", "green_off.jpg");
+		e.preventDefault();
+		this.touched = true;
+		socket.emit('sendmes','2');
+	},
+
+
+	'touchend mouseup': function(e){
+		$(this).attr("src", "green_on.jpg");
+		e.preventDefault();
+		if(!this.touched){
+			return;
+		}
+		this.touched = false;
+		socket.emit('sendmes','3');
+	}
+});
+
+	$("#3").on({
+		'touchstart mousedown': function(e){
+		$(this).attr("src", "parple_off.jpg");
+		e.preventDefault();
+		this.touched = true;
+		socket.emit('sendmes','4');
+	},
+
+
+	'touchend mouseup': function(e){
+		$(this).attr("src", "parple_on.jpg");
+		e.preventDefault();
+		if(!this.touched){
+			return;
+		}
+		this.touched = false;
+		socket.emit('sendmes','5');
+	}
+});
+
+	$("#4").on({
+		'touchstart mousedown': function(e){
+		$(this).attr("src", "blue_off.jpg");
+		e.preventDefault();
+		this.touched = true;
+		socket.emit('sendmes','6');
+	},
+
+
+	'touchend mouseup': function(e){
+		$(this).attr("src", "blue_on.jpg");
+		e.preventDefault();
+		if(!this.touched){
+			return;
+		}
+		this.touched = false;
+		socket.emit('sendmes','7');
+	}
+});
+		$("#5").on({
+		'touchstart mousedown': function(e){
+		$(this).attr("src", "R_rotate_off.jpg");
+		e.preventDefault();
+		this.touched = true;
+		socket.emit('sendmes',':');
+	},
+
+
+	'touchend mouseup': function(e){
+		$(this).attr("src", "R_rotate.jpg");
+		e.preventDefault();
+		if(!this.touched){
+			return;
+		}
+		this.touched = false;
+		socket.emit('sendmes',';');
+}
+});
+	$("#6").on({
+		'touchstart mousedown': function(e){
+		$(this).attr("src", "L_rotate_off.jpg");
+		e.preventDefault();
+		this.touched = true;
+		socket.emit('sendmes','8');
+	},
+
+
+	'touchend mouseup': function(e){
+		$(this).attr("src", "L_rotate.jpg");
+		e.preventDefault();
+		if(!this.touched){
+			return;
+		}
+		this.touched = false;
+		socket.emit('sendmes','9');
+	}
+});
+ </script>
+</html>
